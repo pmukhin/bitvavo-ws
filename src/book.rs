@@ -42,7 +42,8 @@ impl<'de> Deserialize<'de> for PriceLevel {
                     .next_element()?
                     .ok_or_else(|| de::Error::invalid_length(1, &self))?;
                 let price = from_value::<FloatWrapper>(price_str).map_err(de::Error::custom)?;
-                let quantity = from_value::<FloatWrapper>(quantity_str).map_err(de::Error::custom)?;
+                let quantity =
+                    from_value::<FloatWrapper>(quantity_str).map_err(de::Error::custom)?;
 
                 Ok(PriceLevel { price, quantity })
             }

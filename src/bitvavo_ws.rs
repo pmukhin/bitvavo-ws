@@ -3,9 +3,9 @@ use crate::candle::{Candle, CandleEvent};
 use crate::event::{BitvavoEvent, Ticker, Ticker24h, TickerBookResponse};
 use crate::markets::MarketsResponse;
 
+use crate::trade::Trade;
 use serde_json::{from_value, Error};
 use std::fmt::{Debug, Formatter};
-use crate::trade::Trade;
 
 pub enum DecodeError {
     NonDecodeableMessage(String),
@@ -97,13 +97,15 @@ pub fn decode_text(message: &str) -> Result<BitvavoEvent, DecodeError> {
     // actions
     if let Some(action_type) = maybe_action_type {
         return match action_type {
-            "getMarkets" => {
-                Ok(BitvavoEvent::MarketsResponse(from_value::<MarketsResponse>(value)?))
-            }
+            "getMarkets" => Ok(BitvavoEvent::MarketsResponse(
+                from_value::<MarketsResponse>(value)?,
+            )),
 
             "getTickerBook" => {
                 log::info!("get ticker book: {}", &value);
-                Ok(BitvavoEvent::TickerBook(from_value::<TickerBookResponse>(value)?))
+                Ok(BitvavoEvent::TickerBook(from_value::<TickerBookResponse>(
+                    value,
+                )?))
             }
 
             action_type => {

@@ -1,12 +1,12 @@
 use crate::book::Book;
 use crate::candle::Candle;
 use crate::markets::MarketsResponse;
+use crate::rug_float_serde::FloatWrapper;
 use crate::sig::create_signature;
 use crate::trade::Trade;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
-use crate::rug_float_serde::FloatWrapper;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum BitvavoEvent {
