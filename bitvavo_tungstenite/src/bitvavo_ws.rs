@@ -8,12 +8,6 @@ use crate::get_markets::MarketsResponse;
 use crate::trade::Trade;
 use serde_json::{from_value, Error};
 use std::fmt::{Debug, Formatter};
-use async_trait::async_trait;
-
-#[async_trait]
-pub trait BitvavoSender<E> {
-    async fn send_payload(&mut self, payload: &str) -> Result<(), E>;
-}
 
 pub enum DecodeError {
     NonDecodeableMessage(String),
