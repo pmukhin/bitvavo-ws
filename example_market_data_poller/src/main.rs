@@ -1,26 +1,13 @@
-mod bitvavo_ws;
-mod book;
-mod candle;
-mod event;
-mod get_balances;
-mod markets;
-mod rug_float_serde;
-mod side;
-mod sig;
-mod trade;
-
-use bitvavo_ws::decode_text;
-use book::Book;
+use bitvavo_ws_rust::bitvavo_ws::decode_text;
+use bitvavo_ws_rust::event::{AuthRequest, BitvavoEvent};
+use bitvavo_ws_rust::get_balances::get_balances;
+use bitvavo_ws_rust::get_book::get_book;
+use bitvavo_ws_rust::local_book::LocalBook;
+use bitvavo_ws_rust::subscribe::subscribe;
 use clap::Parser;
-use event::{AuthRequest, BitvavoEvent};
-use futures_util::stream::SplitSink;
 use futures_util::SinkExt;
 use futures_util::StreamExt;
-use get_balances::get_balances;
-use serde_json::json;
-use std::sync::Arc;
-use tokio::net::TcpStream;
-use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
+use tokio_tungstenite::connect_async;
 use tungstenite::client::IntoClientRequest;
 
 #[derive(Parser, Debug)]
@@ -38,16 +25,21 @@ struct Config {
 
     #[clap(short('u'), long, value_name = "WS_URL", required = true)]
     ws_url: String,
+
+    #[clap(short('b'), long, value_name = "BASE_ASSET", required = true)]
+    base_asset: String,
+
+    #[clap(short('q'), long, value_name = "QUOTE_ASSET", required = true)]
+    quote_asset: String,
 }
 
 #[tokio::main]
 async fn main() {
     env_logger::init();
     let config = Config::parse();
-    let traded_base = "BTC";
 
     let url = config.ws_url.into_client_request().unwrap();
-    let (ws_stream, _) = connect_async(url).await.expect("Failed to connect");
+    let (ws_stream, _) = connect_async(url).await.expect("failed to connect");
     let (mut write, mut read) = ws_stream.split();
 
     let auth_req = AuthRequest::make(&config.api_key, &config.api_secret);
@@ -63,9 +55,9 @@ async fn main() {
         .await
         .expect("error authentication response reading message");
 
-    log::debug!("authentication succeeded: {}", msg.unwrap());
+    log::info!("authentication succeeded: {}", msg.unwrap());
 
-    let mut local_book = Arc::new(Book::default());
+    let mut local_book = LocalBook::new();
 
     let balances = get_balances(&mut write, &mut read)
         .await
@@ -75,19 +67,29 @@ async fn main() {
         .map(|x| x.available.parse::<f64>().unwrap())
         .unwrap_or(0.0);
     let current_base_balance: f64 = balances
-        .get(traded_base)
+        .get(&config.base_asset)
         .map(|x| x.available.parse::<f64>().unwrap())
         .unwrap_or(0.0);
 
     log::info!("current EUR balance: {}", current_eur_balance);
-    log::info!("current {} balance: {}", traded_base, current_base_balance);
+    log::info!(
+        "current {} balance: {}",
+        &config.base_asset,
+        current_base_balance
+    );
 
-    subscribe(&mut write).await;
+    let market_symbol = format!("{}-{}", &config.base_asset, &config.quote_asset);
+
+    get_book(&mut write, &market_symbol)
+        .await
+        .expect("failed to get book");
+
+    subscribe(&mut write, &market_symbol).await.expect("failed to subscribe");
 
     loop {
         let msg = read.next().await;
         match msg {
-            None => continue,
+            None => log::debug!("no message received on time"),
             Some(Err(e)) => {
                 log::error!("error reading message: {:?}", e);
                 continue;
@@ -100,50 +102,30 @@ async fn main() {
                 Err(e) => log::error!("error decoding event: {:?}", e),
                 Ok(BitvavoEvent::Subscribed) => log::debug!("successfully subscribed"),
                 // control events
-                Ok(BitvavoEvent::Book(book)) => {
-                    *Arc::get_mut(&mut local_book).unwrap() = book;
-                }
+                Ok(BitvavoEvent::Book(book)) => local_book.digest(book),
                 Ok(BitvavoEvent::Candle(_e)) => {}
                 Ok(BitvavoEvent::Trade(_e)) => {}
-                Ok(BitvavoEvent::MarketsResponse(_e)) => {}
+                Ok(BitvavoEvent::Markets(_markets)) => {}
                 Ok(BitvavoEvent::TickerBook(_e)) => {}
                 Ok(BitvavoEvent::Ticker24h(_e)) => {}
                 Ok(BitvavoEvent::Ticker(_e)) => {}
             },
-            // ping, etc
-            Some(_) => {
-                continue;
+            Some(Ok(tungstenite::Message::Ping(m))) => {
+                write
+                    .send(tungstenite::Message::Pong(m))
+                    .await
+                    .expect("failed to send pong");
+            }
+            // etc
+            Some(m) => {
+                log::warn!("ignoring unexpected message: {:?}", m);
             }
         }
-        log::info!("local book: {:?}", local_book);
+        log::info!(
+            "local book top: {:?} : {:?}, spread: {}%",
+            local_book.top_bid_or_default(),
+            local_book.top_ask_or_default(),
+            local_book.real_spread_or_default().format_as_percentage(),
+        )
     }
-}
-
-async fn subscribe(
-    write: &mut SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, tungstenite::Message>,
-) {
-    let subscribe_message = json!({
-        "action": "subscribe",
-        "channels": [
-            {
-                "name": "ticker",
-                "markets": [ "BTC-EUR" ],
-            }, {
-                "name": "candles",
-                "interval": [ "1h" ],
-                "markets": [ "BTC-EUR" ]
-            }, {
-                "name": "book",
-                "markets": [ "BTC-EUR" ]
-            }, {
-                "name": "trades",
-                "markets": [ "BTC-EUR" ]
-            }
-        ]
-    });
-
-    write
-        .send(tungstenite::Message::Text(subscribe_message.to_string()))
-        .await
-        .expect("failed to subscribe to events");
 }
