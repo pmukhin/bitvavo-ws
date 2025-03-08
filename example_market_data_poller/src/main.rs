@@ -46,7 +46,7 @@ async fn main() {
     let auth_req_str = serde_json::to_string(&auth_req).unwrap();
 
     write
-        .send(tungstenite::Message::Text(auth_req_str))
+        .send(tungstenite::Message::Text(auth_req_str.into()))
         .await
         .expect("failed to send auth request");
 

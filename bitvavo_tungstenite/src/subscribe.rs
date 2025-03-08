@@ -33,6 +33,6 @@ pub async fn subscribe(
     });
 
     write
-        .send(tungstenite::Message::Text(subscribe_message.to_string()))
+        .send(tungstenite::Message::Text(subscribe_message.to_string().into()))
         .await
 }

@@ -71,7 +71,7 @@ pub async fn get_book(
         "action": "getBook",
         "market": market,
     });
-    write.send(Message::Text(markets_message.to_string())).await
+    write.send(Message::Text(markets_message.to_string().into())).await
 }
 
 #[cfg(test)]

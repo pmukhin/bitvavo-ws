@@ -21,7 +21,7 @@ pub async fn place_buy_limit_order(
         "price": price.to_string(),
     });
 
-    write.send(Message::Text(order_message.to_string())).await
+    write.send(Message::Text(order_message.to_string().into())).await
 }
 
 pub async fn place_sell_limit_order(
@@ -39,7 +39,7 @@ pub async fn place_sell_limit_order(
         "price": price.to_string(),
     });
 
-    write.send(Message::Text(order_message.to_string())).await
+    write.send(Message::Text(order_message.to_string().into())).await
 }
 
 pub async fn place_buy_market_order(
@@ -55,7 +55,7 @@ pub async fn place_buy_market_order(
         "amount": quantity.to_string(),
     });
 
-    write.send(Message::Text(order_message.to_string())).await
+    write.send(Message::Text(order_message.to_string().into())).await
 }
 
 pub async fn place_sell_market_order(
@@ -71,5 +71,5 @@ pub async fn place_sell_market_order(
         "amount": quantity.to_string(),
     });
 
-    write.send(Message::Text(order_message.to_string())).await
+    write.send(Message::Text(order_message.to_string().into())).await
 }

@@ -44,7 +44,7 @@ pub async fn get_balances(
         "action": "privateGetBalance",
     });
 
-    write.send(Message::Text(get_balances.to_string())).await?;
+    write.send(Message::Text(get_balances.to_string().into())).await?;
 
     // now we wait until the response arrives
     let msg = read.next().await.expect("privateGetBalance failed")?;

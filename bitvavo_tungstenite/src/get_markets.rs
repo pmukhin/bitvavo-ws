@@ -73,5 +73,5 @@ pub async fn get_markets(
     let markets_message = json!({
         "action": "getMarkets",
     });
-    write.send(Message::Text(markets_message.to_string())).await
+    write.send(Message::Text(markets_message.to_string().into())).await
 }
