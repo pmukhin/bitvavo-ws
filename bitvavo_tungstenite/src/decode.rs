@@ -1,9 +1,11 @@
 use crate::candle::{Candle, CandleEvent};
 use crate::event::{
-    BitvavoEvent, BookResponse, SubscriptionResponse, Ticker, Ticker24h, TickerBookResponse,
+    BitvavoEvent, BookResponse, GetBalancesResponse, SubscriptionResponse, Ticker, Ticker24h,
+    TickerBookResponse,
 };
-use crate::get_book::Book;
-use crate::get_markets::MarketsResponse;
+use crate::market::MarketsResponse;
+use crate::price_level::Book;
+use std::collections::HashMap;
 
 use crate::trade::Trade;
 use serde_json::{from_value, Error};
@@ -103,10 +105,18 @@ pub fn decode_event(message: &str) -> Result<BitvavoEvent, DecodeError> {
                 from_value::<MarketsResponse>(value)?.response,
             )),
 
-            "getTickerBook" => {
-                Ok(BitvavoEvent::TickerBook(from_value::<TickerBookResponse>(
-                    value,
-                )?))
+            "getTickerBook" => Ok(BitvavoEvent::TickerBook(from_value::<TickerBookResponse>(
+                value,
+            )?)),
+
+            "privateGetBalance" => {
+                let response = from_value::<GetBalancesResponse>(value)?;
+                let balances = response
+                    .response
+                    .into_iter()
+                    .map(|balance| (balance.symbol.clone(), balance.clone()))
+                    .collect::<HashMap<_, _>>();
+                Ok(BitvavoEvent::Balances(balances))
             }
 
             "getBook" => {

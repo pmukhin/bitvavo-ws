@@ -1,13 +1,8 @@
 use crate::rug_float_serde::FloatWrapper;
-use futures_util::stream::SplitSink;
-use futures_util::SinkExt;
 use serde::de::{SeqAccess, Visitor};
 use serde::{de, Deserialize, Deserializer, Serialize};
-use serde_json::{from_value, json};
+use serde_json::from_value;
 use std::fmt::{Debug, Formatter};
-use tokio::net::TcpStream;
-use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
-use tungstenite::Message;
 
 #[derive(Clone, Serialize, Default)]
 pub struct PriceLevel {
@@ -61,17 +56,6 @@ impl<'de> Deserialize<'de> for PriceLevel {
         }
         deserializer.deserialize_seq(PriceLevelVisitor)
     }
-}
-
-pub async fn get_book(
-    write: &mut SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>,
-    market: &str,
-) -> Result<(), tungstenite::Error> {
-    let markets_message = json!({
-        "action": "getBook",
-        "market": market,
-    });
-    write.send(Message::Text(markets_message.to_string().into())).await
 }
 
 #[cfg(test)]

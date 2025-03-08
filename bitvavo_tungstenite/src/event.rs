@@ -1,6 +1,6 @@
 use crate::candle::Candle;
-use crate::get_book::Book;
-use crate::get_markets::Market;
+use crate::market::Market;
+use crate::price_level::Book;
 use crate::rug_float_serde::FloatWrapper;
 use crate::sig::create_signature;
 use crate::trade::Trade;
@@ -18,6 +18,7 @@ pub enum BitvavoEvent {
     TickerBook(TickerBookResponse),
     Ticker24h(Ticker24h),
     Ticker(Ticker),
+    Balances(HashMap<String, Balance>),
 }
 
 impl BitvavoEvent {
@@ -240,8 +241,8 @@ struct Fill {
 #[serde(rename_all = "camelCase")]
 pub struct Balance {
     pub symbol: String,
-    pub available: String,
-    pub in_order: String,
+    pub available: FloatWrapper,
+    pub in_order: FloatWrapper,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

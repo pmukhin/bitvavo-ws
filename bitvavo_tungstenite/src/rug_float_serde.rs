@@ -1,10 +1,10 @@
+use rug::float::Round;
 use rug::float::Round::Nearest;
 use rug::Float;
 use serde::de::{self, Deserialize, Deserializer, Visitor};
 use serde::Serialize;
 use std::fmt;
 use std::fmt::{Debug, Display};
-use rug::float::Round;
 
 #[derive(Clone)]
 pub struct FloatWrapper {
@@ -22,10 +22,7 @@ impl FloatWrapper {
 impl From<Float> for FloatWrapper {
     fn from(float: Float) -> Self {
         let str_repr = float.to_string_radix_round(10, Some(10), Round::Up);
-        FloatWrapper {
-            float,
-            str_repr,
-        }
+        FloatWrapper { float, str_repr }
     }
 }
 

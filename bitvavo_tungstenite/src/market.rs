@@ -1,11 +1,5 @@
-use futures_util::stream::SplitSink;
-use futures_util::SinkExt;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::fmt::{Display, Formatter};
-use tokio::net::TcpStream;
-use tokio_tungstenite::{MaybeTlsStream, WebSocketStream};
-use tungstenite::Message;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -65,13 +59,4 @@ impl Display for MarketsResponse {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "Markets: {:?}", self.response,)
     }
-}
-
-pub async fn get_markets(
-    write: &mut SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>,
-) -> Result<(), tungstenite::Error> {
-    let markets_message = json!({
-        "action": "getMarkets",
-    });
-    write.send(Message::Text(markets_message.to_string().into())).await
 }
