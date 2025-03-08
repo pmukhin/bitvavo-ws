@@ -1,6 +1,6 @@
 #![feature(let_chains)]
 
-pub mod bitvavo_ws;
+pub mod decode;
 pub mod candle;
 pub mod event;
 pub mod get_balances;

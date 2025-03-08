@@ -33,7 +33,7 @@ impl From<serde_json::Error> for DecodeError {
     }
 }
 
-pub fn decode_text(message: &str) -> Result<BitvavoEvent, DecodeError> {
+pub fn decode_event(message: &str) -> Result<BitvavoEvent, DecodeError> {
     let message_str = message.to_string();
 
     if !message_str.starts_with("{") {

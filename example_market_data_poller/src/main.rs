@@ -1,4 +1,4 @@
-use bitvavo_ws_rust::bitvavo_ws::decode_text;
+use bitvavo_ws_rust::decode::decode_event;
 use bitvavo_ws_rust::event::{AuthRequest, BitvavoEvent};
 use bitvavo_ws_rust::get_balances::get_balances;
 use bitvavo_ws_rust::get_book::get_book;
@@ -98,7 +98,7 @@ async fn main() {
                 log::error!("server closed the connection");
                 break;
             }
-            Some(Ok(tungstenite::Message::Text(text))) => match decode_text(&text) {
+            Some(Ok(tungstenite::Message::Text(text))) => match decode_event(&text) {
                 Err(e) => log::error!("error decoding event: {:?}", e),
                 Ok(BitvavoEvent::Subscribed) => log::debug!("successfully subscribed"),
                 // control events
