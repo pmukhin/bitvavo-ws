@@ -90,7 +90,6 @@ async fn main() {
             Some(Ok(tungstenite::Message::Text(text))) => match decode_event(&text) {
                 Err(e) => log::error!("error decoding event: {:?}", e),
                 Ok(BitvavoEvent::Subscribed) => log::debug!("successfully subscribed"),
-                // control events
                 Ok(BitvavoEvent::Book(book)) => local_book.ingest_book(book),
                 Ok(BitvavoEvent::Candle(_e)) => {}
                 Ok(BitvavoEvent::Trade(_e)) => {}
