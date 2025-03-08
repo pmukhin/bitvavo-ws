@@ -114,7 +114,7 @@ pub fn decode_event(message: &str) -> Result<BitvavoEvent, DecodeError> {
                 let balances = response
                     .response
                     .into_iter()
-                    .map(|balance| (balance.symbol.clone(), balance.clone()))
+                    .map(|balance| (balance.symbol.clone(), balance))
                     .collect::<HashMap<_, _>>();
                 Ok(BitvavoEvent::Balances(balances))
             }
