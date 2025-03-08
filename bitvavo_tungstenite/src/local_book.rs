@@ -1,3 +1,4 @@
+use crate::event::Ticker;
 use crate::get_book::{Book, PriceLevel};
 use crate::rug_float_serde::FloatWrapper;
 
@@ -35,7 +36,19 @@ impl LocalBook {
         FloatWrapper::default()
     }
 
-    pub fn digest(&mut self, book: Book) {
+    // when ingesting a ticker only the top of the book is available
+    pub fn ingest_ticker(&mut self, ticker: Ticker) {
+        if let Some(best_bid) = ticker.best_bid {
+            self.bids = Vec::new();
+            self.bids.push(PriceLevel { price: best_bid, quantity: ticker.best_bid_size.unwrap() })
+        }
+        if let Some(best_ask) = ticker.best_ask {
+            self.asks = Vec::new();
+            self.asks.push(PriceLevel { price: best_ask, quantity: ticker.best_ask_size.unwrap() })
+        }
+    }
+
+    pub fn ingest_book(&mut self, book: Book) {
         let bids = book.bids.into_iter().skip_while(|pl| pl.quantity.float == 0);
         let asks = book.asks.into_iter().skip_while(|pl| pl.quantity.float == 0);
         self.bids = bids.collect();

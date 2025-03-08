@@ -102,13 +102,13 @@ async fn main() {
                 Err(e) => log::error!("error decoding event: {:?}", e),
                 Ok(BitvavoEvent::Subscribed) => log::debug!("successfully subscribed"),
                 // control events
-                Ok(BitvavoEvent::Book(book)) => local_book.digest(book),
+                Ok(BitvavoEvent::Book(book)) => local_book.ingest_book(book),
                 Ok(BitvavoEvent::Candle(_e)) => {}
                 Ok(BitvavoEvent::Trade(_e)) => {}
                 Ok(BitvavoEvent::Markets(_markets)) => {}
                 Ok(BitvavoEvent::TickerBook(_e)) => {}
                 Ok(BitvavoEvent::Ticker24h(_e)) => {}
-                Ok(BitvavoEvent::Ticker(_e)) => {}
+                Ok(BitvavoEvent::Ticker(ticker)) => local_book.ingest_ticker(ticker),
             },
             Some(Ok(tungstenite::Message::Ping(m))) => {
                 write

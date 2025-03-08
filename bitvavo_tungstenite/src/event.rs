@@ -100,13 +100,13 @@ pub struct Ticker24hResponse {
 pub struct Ticker {
     market: String,
     #[serde(rename = "bestBid")]
-    best_bid: Option<FloatWrapper>,
+    pub best_bid: Option<FloatWrapper>,
     #[serde(rename = "bestBidSize")]
-    best_bid_size: Option<FloatWrapper>,
+    pub best_bid_size: Option<FloatWrapper>,
     #[serde(rename = "bestAsk")]
-    best_ask: Option<FloatWrapper>,
+    pub best_ask: Option<FloatWrapper>,
     #[serde(rename = "bestAskSize")]
-    best_ask_size: Option<FloatWrapper>,
+    pub best_ask_size: Option<FloatWrapper>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

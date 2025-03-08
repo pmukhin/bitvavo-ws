@@ -19,10 +19,10 @@ pub async fn subscribe(
                 "name": "candles",
                 "interval": [ "1h" ],
                 "markets": [ market ]
-            }, {
+            }, /*{
                 "name": "book",
                 "markets": [ market ]
-            }, {
+            },*/ {
                 "name": "trades",
                 "markets": [ market ]
             }, {
@@ -31,7 +31,6 @@ pub async fn subscribe(
             },
         ]
     });
-
     write
         .send(tungstenite::Message::Text(subscribe_message.to_string().into()))
         .await
