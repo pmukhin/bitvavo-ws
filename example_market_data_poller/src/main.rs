@@ -57,7 +57,7 @@ async fn main() {
 
     log::info!("authentication succeeded: {}", msg.unwrap());
 
-    let mut local_book = LocalBook::new();
+    let mut local_book = LocalBook::default();
 
     let balances = get_balances(&mut write, &mut read)
         .await

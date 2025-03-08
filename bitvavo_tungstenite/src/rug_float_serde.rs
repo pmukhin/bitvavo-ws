@@ -31,7 +31,7 @@ impl From<Float> for FloatWrapper {
 
 impl Debug for FloatWrapper {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.write_str(&format!("{}", self.str_repr))
+        fmt.write_str(&self.str_repr)
     }
 }
 

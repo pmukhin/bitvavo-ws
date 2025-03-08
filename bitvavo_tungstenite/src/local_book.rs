@@ -2,6 +2,7 @@ use crate::event::Ticker;
 use crate::get_book::{Book, PriceLevel};
 use crate::rug_float_serde::FloatWrapper;
 
+#[derive(Debug, Default)]
 pub struct LocalBook {
     price_level_default: PriceLevel,
     bids: Vec<PriceLevel>,
@@ -9,14 +10,6 @@ pub struct LocalBook {
 }
 
 impl LocalBook {
-    pub fn new() -> LocalBook {
-        LocalBook {
-            price_level_default: PriceLevel::default(),
-            bids: Vec::new(),
-            asks: Vec::new(),
-        }
-    }
-
     pub fn top_bid_or_default(&self) -> &PriceLevel {
         self.bids.first().unwrap_or(&self.price_level_default)
     }
