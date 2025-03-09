@@ -244,4 +244,40 @@ impl Bitvavo {
             .send(tungstenite::Message::Text(order_message.to_string().into()))
             .await
     }
+
+    pub async fn cancel_order(&mut self, order_id: &str) -> Result<(), tungstenite::Error> {
+        let cancel_message = json!({
+            "action": "cancelOrder",
+            "orderId": order_id,
+        });
+
+        self.stream
+            .send(tungstenite::Message::Text(
+                cancel_message.to_string().into(),
+            ))
+            .await
+    }
+
+    pub async fn cancel_all(&mut self) -> Result<(), tungstenite::Error> {
+        let cancel_all_message = json!({
+            "action": "cancelOrders",
+        });
+        self.stream
+            .send(tungstenite::Message::Text(
+                cancel_all_message.to_string().into(),
+            ))
+            .await
+    }
+
+    pub async fn cancel_all_within_market(&mut self, market: &str) -> Result<(), tungstenite::Error> {
+        let cancel_all_message = json!({
+            "action": "cancelOrders",
+            "market": market,
+        });
+        self.stream
+            .send(tungstenite::Message::Text(
+                cancel_all_message.to_string().into(),
+            ))
+            .await
+    }
 }
