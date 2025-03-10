@@ -269,7 +269,10 @@ impl Bitvavo {
             .await
     }
 
-    pub async fn cancel_all_within_market(&mut self, market: &str) -> Result<(), tungstenite::Error> {
+    pub async fn cancel_all_within_market(
+        &mut self,
+        market: &str,
+    ) -> Result<(), tungstenite::Error> {
         let cancel_all_message = json!({
             "action": "cancelOrders",
             "market": market,

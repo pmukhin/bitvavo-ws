@@ -1,7 +1,7 @@
-use bitvavo_ws_rust::bitvavo::{Bitvavo, SubscriptionBuilder};
-use bitvavo_ws_rust::decode::decode_event;
-use bitvavo_ws_rust::event::{AuthRequest, BitvavoEvent};
-use bitvavo_ws_rust::local_book::LocalBook;
+use bitvavo_tungstenite::bitvavo::{Bitvavo, SubscriptionBuilder};
+use bitvavo_tungstenite::decode::decode_event;
+use bitvavo_tungstenite::event::{AuthRequest, BitvavoEvent};
+use bitvavo_tungstenite::local_book::LocalBook;
 use clap::Parser;
 use futures_util::StreamExt;
 use std::collections::HashMap;
@@ -44,33 +44,32 @@ async fn main() {
     // wrapping write Sink into the Bitvavo struct to send commands
     let mut bitvavo = Bitvavo::wrap(write);
 
+    log::info!("requesting authentication");
     bitvavo
         .authenticate(AuthRequest::make(&config.api_key, &config.api_secret))
         .await
         .expect("failed request authentication");
 
-    // let's wait authentication is complete
-    let msg = read
-        .next()
-        .await
-        .expect("error authentication response reading message");
+    // log::info!("now waiting for the authentication to be complete");
+    //
+    // let msg = read
+    //     .next()
+    //     .await
+    //     .expect("error authentication response reading message");
 
-    log::info!("authentication succeeded: {}", msg.unwrap());
+    // log::info!("authentication succeeded: {}", msg.unwrap());
 
     // now we can call actions and receive events/updates
     let mut local_book = LocalBook::default();
     let mut balances = HashMap::default();
 
+    log::info!("requesting balances...");
     bitvavo
         .get_balances()
         .await
         .expect("failed to request balances");
 
-    bitvavo
-        .get_book(&market_symbol)
-        .await
-        .expect("failed to get book");
-
+    log::info!("requesting subscription...");
     let sb = SubscriptionBuilder::default()
         .with_market(market_symbol)
         .with_ticker()
@@ -80,6 +79,7 @@ async fn main() {
 
     bitvavo.subscribe(sb).await.expect("failed to subscribe");
 
+    log::info!("starting polling market data...");
     loop {
         let msg = read.next().await;
         match msg {
@@ -89,7 +89,8 @@ async fn main() {
             }
             Some(Ok(tungstenite::Message::Text(text))) => match decode_event(&text) {
                 Err(e) => log::error!("error decoding event: {:?}", e),
-                Ok(BitvavoEvent::Subscribed) => log::debug!("successfully subscribed"),
+                Ok(BitvavoEvent::Authenticated) => log::info!("successfully authenticated"),
+                Ok(BitvavoEvent::Subscribed) => log::info!("successfully subscribed"),
                 Ok(BitvavoEvent::Book(book)) => local_book.ingest_book(book),
                 Ok(BitvavoEvent::Candle(_e)) => {}
                 Ok(BitvavoEvent::Trade(_e)) => {}

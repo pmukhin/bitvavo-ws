@@ -49,6 +49,7 @@ pub fn decode_event(message: &str) -> Result<BitvavoEvent, DecodeError> {
     // events
     if let Some(event_type) = maybe_event_type {
         return match event_type {
+            "authenticate" => Ok(BitvavoEvent::Authenticated),
             "subscribed" => Ok(BitvavoEvent::Subscribed),
 
             "book" => {

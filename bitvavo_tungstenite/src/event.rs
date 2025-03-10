@@ -10,6 +10,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum BitvavoEvent {
+    Authenticated,
     Subscribed,
     Book(Book),
     Candle(Candle),
@@ -253,10 +254,10 @@ pub struct GetBalancesResponse {
 #[derive(Serialize, Deserialize)]
 pub struct AuthRequest {
     action: String,
-    key: String,
-    signature: String,
-    timestamp: u64,
-    window: String,
+    pub key: String,
+    pub signature: String,
+    pub timestamp: u64,
+    pub window: String,
 }
 
 impl AuthRequest {

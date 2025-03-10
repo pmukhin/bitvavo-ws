@@ -1,5 +1,5 @@
 [package]
-name = "bitvavo-ws-rust"
+name = "bitvavo_tungstenite"
 version = "0.0.1"
 edition = "2021"
 repository = "https://github.com/bitvavo/bitvavo-ws-rust"
@@ -16,5 +16,5 @@ hmac = "0.13.0-pre.4"
 sha2 = "0.11.0-pre.4"
 futures-util = "0.3.31"
 log = "0.4.22"
-env_logger = "0.11.5"  # use the latest version if possible
+env_logger = "0.11.6"
 rug = { version = "1.26.1", features = ["serde"] }

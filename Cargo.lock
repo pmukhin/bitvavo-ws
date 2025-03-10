@@ -109,7 +109,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 
 [[package]]
-name = "bitvavo-ws-rust"
+name = "bitvavo_tungstenite"
 version = "0.0.1"
 dependencies = [
  "env_logger",
@@ -319,9 +319,9 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
-version = "0.11.5"
+version = "0.11.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e13fa619b91fb2381732789fc5de83b45675e882f66623b7d8cb4f643017018d"
+checksum = "dcaee3d8e3cfc3fd92428d477bc97fc29ec8716d180c0d74c643bb26166660e0"
 dependencies = [
  "anstream",
  "anstyle",
@@ -344,7 +344,7 @@ dependencies = [
 name = "example_market_data_poller"
 version = "0.1.0"
 dependencies = [
- "bitvavo-ws-rust",
+ "bitvavo_tungstenite",
  "clap",
  "env_logger",
  "futures-util",
@@ -1168,6 +1168,18 @@ name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
+
+[[package]]
+name = "stub_exchange"
+version = "0.0.1"
+dependencies = [
+ "bitvavo_tungstenite",
+ "env_logger",
+ "log",
+ "serde",
+ "serde_json",
+ "tungstenite",
+]
 
 [[package]]
 name = "subtle"
